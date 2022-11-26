@@ -9,8 +9,16 @@ const height = canvas.height = window.innerHeight;  // height of the window
 const ctx = canvas.getContext('2d');                // canvas context
 
 let entities = [];  // List of all entities on the canvas
+const carrots = [];
+const rabbits = [];
+const foxes = [];
+
 const normEnergy = 10000;   // Default amount of energy, in Joules
 const eatRadius = 10;            // Default eating radius, in meters
+
+const textWidth = 200;      // Default text width
+const fontSize = 24;        // Default font size
+const vertPadding = 2;      // Defualt vertical padding
 
 /*
   HELPER FUNCTIONS
@@ -89,6 +97,39 @@ function getFillStyle(r, g, b) {
     return `rgb(${r},${g},${b})`;
 }
 
+// Counts the survivors in a group of entities in an array
+function countSurvivors(arr) {
+    let n = 0;
+    for(const e of arr) {
+        if(e.getLiving() > 0) {
+            n++;
+        }
+    }
+    return n;
+}
+
+// Find maximum living time in group
+function findMaxLivingTime(arr) {
+    let biggest = 0;
+    for(const e of arr) {
+        if(e.getLivingTime() > biggest) {
+            biggest = e.getLivingTime();
+        }
+    }
+    return biggest;
+}
+
+function drawStatusBox() {
+    ctx.font = `${fontSize}px serif`;
+    ctx.fillStyle = getFillStyle(255,255,255);
+    ctx.fillText(`Carrots: ${countSurvivors(carrots)}`, width-textWidth, 1*fontSize+vertPadding, textWidth);
+    ctx.fillText(`Survived For ${findMaxLivingTime(carrots)} s`, width-textWidth, 2*fontSize+vertPadding, textWidth);
+    ctx.fillText(`Rabbits: ${countSurvivors(rabbits)}`, width-textWidth, 3*fontSize+vertPadding, textWidth);
+    ctx.fillText(`Survived For ${findMaxLivingTime(rabbits)} s`, width-textWidth, 4*fontSize+vertPadding, textWidth);
+    ctx.fillText(`Foxes: ${countSurvivors(foxes)}`, width-textWidth, 5*fontSize+vertPadding, textWidth);
+    ctx.fillText(`Survived For ${findMaxLivingTime(foxes)} s`, width-textWidth, 6*fontSize+vertPadding, textWidth);
+}
+
 /*
   CLASSES AND OBJECTS
 */
@@ -122,6 +163,9 @@ class Entity {
         this.speed = this.SPEED;     // Current speed, in ms^-1
         this.direction = degToRad(getRandomInt(359)); // Current direction, in radians
         this.energy = this.ENERGY;    // Current potential energy, in Joules
+        this.burstTime = 0;         // Time in seconds, of burst speed
+        this.rspeedTime = 0;        // Time in seconds, of reduced speed
+        this.livingTime = 0;        // Time, in seconds, of being alive
         this.living = 1;    // Current status as alive, dead, or eaten (ALIVE: 1, DEAD: 0, EATEN: -1)
     }
 
@@ -169,6 +213,12 @@ class Entity {
     }
     getEnergy() { return this.energy; }
     setEnergy(energy) { this.energy = energy; }
+    getBurstTime() { return this.burstTime; }
+    setBurstTime(time) { this.burstTime = time; }
+    getRSpeedTime() { return this.rspeedTime; }
+    setRSpeedTime(time) { this.rspeedTime = time; }
+    getLivingTime() { return this.livingTime; }
+    setLivingTime(time) { this.livingTime = time; }
     getLiving() { return this.living; }
     setLiving(living) { this.living = living; }
 
@@ -177,33 +227,50 @@ class Entity {
     // Checks if an entity is within this entity's field of vision, a 90 degree cone
     inFieldOfVision(e) {
         const a = angle(this.getX(), this.getY(), e.getX(), e.getY());
-        if((toralDistance(this.getX(), this.getY(), e.getX(), e.getY(),1) <= this.getVISION() || toralDistance(this.getX(), this.getY(), e.getX(), e.getY(),2) <= this.getVISION() || toralDistance(this.getX(), this.getY(), e.getX(), e.getY(),3) <= this.getVISION() || toralDistance(this.getX(), this.getY(), e.getX(), e.getY(),4) <= this.getVISION())) { //&& ((a > this.getDirection() - coneAngle && a < this.getDirection() + coneAngle) || (a - 2*Math.PI > this.getDirection() - coneAngle && a - 2*Math.PI < this.getDirection() + coneAngle))
+        if((toralDistance(this.getX(), this.getY(), e.getX(), e.getY(),1) <= this.getVISION() )) {//|| toralDistance(this.getX(), this.getY(), e.getX(), e.getY(),2) <= this.getVISION() || toralDistance(this.getX(), this.getY(), e.getX(), e.getY(),3) <= this.getVISION() || toralDistance(this.getX(), this.getY(), e.getX(), e.getY(),4) <= this.getVISION())) { //&& ((a > this.getDirection() - coneAngle && a < this.getDirection() + coneAngle) || (a - 2*Math.PI > this.getDirection() - coneAngle && a - 2*Math.PI < this.getDirection() + coneAngle))
             return true;
         }
     }
 
     // Check surroundings
     check() {
+        if(this.getLiving() > 0) {
+            // Randomish movement
+            this.setDirection(this.getDirection() + getRandomRange(0.1));
+            this.setSpeed(this.getSPEED());
 
-        // Randomish movement
-        this.setDirection(this.getDirection() + getRandomRange(0.1));
-
-        // Loop through entities
-        const predators = [];
-        let escapeAngle = 0;
-        for(const e of entities) {
-            if(this.getEATABLES().includes(e.getTYPE()) && e.getLiving() >= 0 && this.inFieldOfVision(e)) {
-                this.setDirection(this.getDirection() + (angle(this.getX(),this.getY(),e.getX(),e.getY()) - this.getDirection())*5/6);
+            // Loop through entities
+            const predators = [];
+            let escapeAngle = 0;
+            for(const e of entities) {
+                if(this.getEATABLES().includes(e.getTYPE()) && e.getLiving() >= 0 && this.inFieldOfVision(e)) {
+                    this.setDirection(this.getDirection() + (angle(this.getX(),this.getY(),e.getX(),e.getY()) - this.getDirection())*5/6);
+                    if(e.getSpeed() != 0) {
+                        this.setSpeed(this.getSPEED()*1.5);
+                        this.setBurstTime(this.getBurstTime() + 1);
+                    }
+                }
+                if(this.getTIER() < e.getTIER() && e.getLiving() > 0 && this.inFieldOfVision(e)) {
+                    predators.push(e);
+                }
             }
-            if(this.getTIER() < e.getTIER()) {
-                predators.push(e);
+            if(predators.length > 0 && this.getEnergy() > this.getENERGY()/10) {
+                for(const p of predators) {
+                    escapeAngle += angle(this.getX(), this.getY(), p.getX(), p.getY());
+                }
+                this.setDirection(Math.PI - escapeAngle/predators.length);
+                this.setSpeed(this.getSPEED()*1.5);
+                this.setBurstTime(this.getBurstTime() + 1);
             }
-        }
-        if(predators.length != 0 && this.getEnergy() <= this.getENERGY()/10) {
-            for(const p of predators) {
-                escapeAngle += angle(this.getX(), this.getY(), p.getX(), p.getY());
+            if(this.getBurstTime() > this.getBURST()) {
+                this.setSpeed(this.getSPEED()*0.6);
+                this.setRSpeedTime(this.getRSpeedTime() + 1);
+                if(this.getRSpeedTime() > this.getRSPEED()) {
+                    this.setSpeed(this.getSPEED());
+                    this.setBurstTime(0);
+                    this.setRSpeedTime(0);
+                }
             }
-            this.setDirection(Math.PI - escapeAngle/predators.length);
         }
     }
 
@@ -221,6 +288,11 @@ class Entity {
         ctx.fillStyle = getFillStyle(this.getRCOLOR(), this.getGCOLOR(), this.getBCOLOR());
         ctx.arc(this.getX(), this.getY(), this.getMASS(), 0, 2*Math.PI, true);
         ctx.fill();
+        if(this.getLiving() > 0) {
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.arc(this.getX(), this.getY(), this.getVISION(), 0, 2*Math.PI, true);
+            ctx.fill();
+        }
     }
 
     // Eat if an eatable is within range
@@ -230,7 +302,7 @@ class Entity {
                 // if the entity is an eatable and is within range...
                 if(this.getEATABLES().includes(e.getTYPE()) && e.getLiving() >= 0 && distance(this.getX(), this.getY(), e.getX(), e.getY()) <= eatRadius) {
                     // Take its energy
-                    this.setEnergy(this.getEnergy() + e.getENERGY() * Math.pow(10,e.getTIER() - this.getTIER()));
+                    this.setEnergy(this.getEnergy() + 5*e.getENERGY() * Math.pow(10,e.getTIER() - this.getTIER()));
                     // Set the entity's living status to eaten
                     e.setLiving(-1);
                 }
@@ -241,6 +313,7 @@ class Entity {
     // Updates energy and living status
     updateEnergy() {
         this.setEnergy(this.getEnergy() - 0.5*this.MASS*Math.pow(this.getSpeed() + 1,2));
+        this.setLivingTime(this.getLivingTime() + 1);
         if(this.getEnergy() <= 0 && this.getLiving() > 0) {
             this.setLiving(0);
         }
@@ -254,6 +327,9 @@ class Entity {
         if(this.getLiving() < 0) {
             this.setRGB(100,100,100);
             this.setSpeed(0);
+        }
+        if(this.getLiving() <= 0) {
+            this.setLivingTime(this.getLivingTime() - 1);
         }
     }
 
@@ -312,33 +388,27 @@ class Bear extends Entity {
 */
 
 for(let i = 0; i < 30; i++) {
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Carrot());
-    entities.push(new Rabbit(5,7,3,10,100));
-    entities.push(new Rabbit(5,7,3,10,100));
-    entities.push(new Rabbit(5,7,3,10,100));
-    entities.push(new Rabbit(5,7,3,10,100));
-    
-    //entities.push(new Fox(4,8,2,15,150));
+    carrots.push(new Carrot());
+    carrots.push(new Carrot());
+    carrots.push(new Carrot());
+    carrots.push(new Carrot());
+    carrots.push(new Carrot());
+    carrots.push(new Carrot());
+    carrots.push(new Carrot());
+    carrots.push(new Carrot());
+    carrots.push(new Carrot());
+    carrots.push(new Carrot());
+    carrots.push(new Carrot());
+    carrots.push(new Carrot());
+    rabbits.push(new Rabbit(5,10000,10000,10,100));
+    rabbits.push(new Rabbit(5,10000,10000,10,100));
 }
 
-for(let i = 0; i < 5; i++) 
-{
-entities.push(new Fox(5.5,8,2,15,150));
+for(let i = 0; i < 10; i++) {
+    foxes.push(new Fox(5.5,10000,10000,15,150));
 }
+
+entities = [...carrots,...rabbits,...foxes];
 
 /*
   LOOP FUNCTION
@@ -359,6 +429,7 @@ function loop() {
         e.eat();
         e.updateEnergy();
     }
+    drawStatusBox();
 
     window.requestAnimationFrame(loop);
 }
