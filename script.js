@@ -9,12 +9,17 @@ const height = canvas.height = window.innerHeight;  // height of the window
 const ctx = canvas.getContext('2d');                // canvas context
 
 let entities = [];  // List of all entities on the canvas
-const carrots = [];
-const rabbits = [];
-const foxes = [];
+let carrots = [];
+let rabbits = [];
+let foxes = [];
 
-const normEnergy = 10000;   // Default amount of energy, in Joules
+const normEnergy = 2500;   // Default amount of energy, in Joules
 const eatRadius = 10;            // Default eating radius, in meters
+const hungerThreshold = 0.5;    // Default hunger threshold, as a percent of total energy;
+
+const totalCarrots = 50;
+const totalRabbits = 15;
+const totalFoxes = 5;
 
 const textWidth = 200;      // Default text width
 const fontSize = 24;        // Default font size
@@ -119,6 +124,17 @@ function findMaxLivingTime(arr) {
     return biggest;
 }
 
+// Find best survivor in a group
+function findBestSurvivor(arr) {
+    let best = arr[0]
+    for(const e of arr) {
+        if(e.getLivingTime() > best.getLivingTime()) {
+            best = e;
+        }
+    }
+    return best;
+}
+
 function drawStatusBox() {
     ctx.font = `${fontSize}px serif`;
     ctx.fillStyle = getFillStyle(255,255,255);
@@ -128,6 +144,42 @@ function drawStatusBox() {
     ctx.fillText(`Survived For ${findMaxLivingTime(rabbits)} s`, width-textWidth, 4*fontSize+vertPadding, textWidth);
     ctx.fillText(`Foxes: ${countSurvivors(foxes)}`, width-textWidth, 5*fontSize+vertPadding, textWidth);
     ctx.fillText(`Survived For ${findMaxLivingTime(foxes)} s`, width-textWidth, 6*fontSize+vertPadding, textWidth);
+}
+
+// LOOP REINITIALIZER : IMPORTANT!!!
+function startNewTrial() {
+    console.log(`Carrots: ${findMaxLivingTime(carrots)}`);
+    console.log(`Rabbits: ${findMaxLivingTime(rabbits)}`);
+    console.log(`Foxes: ${findMaxLivingTime(foxes)}`);
+
+    carrots = [];
+    const bestRabbit = findBestSurvivor(rabbits);
+    console.log('Best Rabbit:');
+    console.log(bestRabbit);
+    let eRabbit = {};
+    rabbits = [];
+    const bestFox = findBestSurvivor(foxes);
+    console.log('Best Fox:');
+    console.log(bestFox);
+    let eFox = {};
+    foxes = [];
+
+    for(let i = 0; i < totalCarrots; i++) {
+        carrots.push(new Carrot());
+    }
+
+    for(let i = 0; i < totalRabbits; i++) {
+        eRabbit = new Rabbit(bestRabbit.getSPEED(),bestRabbit.getBURST(),bestRabbit.getRSPEED(),bestRabbit.getMASS(),bestRabbit.getVISION());
+        rabbits.push(eRabbit.mutateGenes());
+    }
+
+    for(let i = 0; i < totalFoxes; i++) {
+        eFox = new Fox(bestFox.getSPEED(),bestFox.getBURST(),bestFox.getRSPEED(),bestFox.getMASS(),bestFox.getVISION());
+        foxes.push(eFox.mutateGenes());
+    }
+
+    entities = [...carrots,...rabbits,...foxes];
+
 }
 
 /*
@@ -236,14 +288,21 @@ class Entity {
     check() {
         if(this.getLiving() > 0) {
             // Randomish movement
-            this.setDirection(this.getDirection() + getRandomRange(0.1));
+            if(this.getLivingTime()%2 === 0) {
+                this.setDirection(this.getDirection() + getRandomRange(0.1));
+            }
             this.setSpeed(this.getSPEED());
 
             // Loop through entities
             const predators = [];
             let escapeAngle = 0;
             for(const e of entities) {
-                if(this.getEATABLES().includes(e.getTYPE()) && e.getLiving() >= 0 && this.inFieldOfVision(e)) {
+                /*
+                if(this.getTIER() === e.getTIER() && e.getLiving() > 0 && this.inFieldOfVision(e)) {
+                    this.setDirection(e.getDirection());        // GROUP BEHAVIOR???
+                }
+                */
+                if(this.getEnergy() <= hungerThreshold*this.getENERGY() && this.getEATABLES().includes(e.getTYPE()) && e.getLiving() >= 0 && this.inFieldOfVision(e)) {
                     this.setDirection(this.getDirection() + (angle(this.getX(),this.getY(),e.getX(),e.getY()) - this.getDirection())*5/6);
                     if(e.getSpeed() != 0) {
                         this.setSpeed(this.getSPEED()*1.5);
@@ -297,12 +356,12 @@ class Entity {
 
     // Eat if an eatable is within range
     eat() {
-        if(this.getLiving() > 0) {
+        if(this.getLiving() > 0 && this.getEnergy() <= hungerThreshold*this.getENERGY()) {
             for(const e of entities) {
                 // if the entity is an eatable and is within range...
                 if(this.getEATABLES().includes(e.getTYPE()) && e.getLiving() >= 0 && distance(this.getX(), this.getY(), e.getX(), e.getY()) <= eatRadius) {
                     // Take its energy
-                    this.setEnergy(this.getEnergy() + 5*e.getENERGY() * Math.pow(10,e.getTIER() - this.getTIER()));
+                    this.setEnergy(this.getEnergy() + e.getENERGY());
                     // Set the entity's living status to eaten
                     e.setLiving(-1);
                 }
@@ -312,9 +371,10 @@ class Entity {
 
     // Updates energy and living status
     updateEnergy() {
-        this.setEnergy(this.getEnergy() - 0.5*this.MASS*Math.pow(this.getSpeed() + 1,2));
+        this.setEnergy(this.getEnergy() - 0.5*this.MASS*Math.pow(0*this.getSpeed()+3,2));
+        if(this.getSpeed() <= 1) { this.setEnergy(this.getEnergy() - Math.pow(this.getMASS(),2)*9.8)}
         this.setLivingTime(this.getLivingTime() + 1);
-        if(this.getEnergy() <= 0 && this.getLiving() > 0) {
+        if(this.getEnergy() < 0 && this.getLiving() > 0 && this.getTIER() > 0) {
             this.setLiving(0);
         }
         if(this.getLiving() <= 0 && this.getEnergy > 0) {
@@ -335,11 +395,12 @@ class Entity {
 
     // Mutates all genes by a random amount
     mutateGenes() {
-        this.setSPEED(this.getSPEED() + getRandomRange(1));
-        this.setBURST(this.getBURST() + getRandomRange(1));
-        this.setRSPEED(this.getRSPEED() + getRandomRange(0.5));
-        this.setMASS(this.getMASS() + getRandomRange(0.2));
-        this.setVISION(this.getVISION() + getRandomRange(5));
+        this.setSPEED(this.getSPEED() + getRandomRange(5));
+        //this.setBURST(this.getBURST() + getRandomRange(10));
+        //this.setRSPEED(this.getRSPEED() + getRandomRange(10));
+        //this.setMASS(this.getMASS() + getRandomRange(1));
+        //this.setVISION(this.getVISION() + getRandomRange(20));
+        return this;
     }
 }
 
@@ -387,25 +448,16 @@ class Bear extends Entity {
   INITIAL SETUP
 */
 
-for(let i = 0; i < 30; i++) {
+for(let i = 0; i < totalCarrots; i++) {
     carrots.push(new Carrot());
-    carrots.push(new Carrot());
-    carrots.push(new Carrot());
-    carrots.push(new Carrot());
-    carrots.push(new Carrot());
-    carrots.push(new Carrot());
-    carrots.push(new Carrot());
-    carrots.push(new Carrot());
-    carrots.push(new Carrot());
-    carrots.push(new Carrot());
-    carrots.push(new Carrot());
-    carrots.push(new Carrot());
-    rabbits.push(new Rabbit(5,10000,10000,10,100));
-    rabbits.push(new Rabbit(5,10000,10000,10,100));
 }
 
-for(let i = 0; i < 10; i++) {
-    foxes.push(new Fox(5.5,10000,10000,15,150));
+for(let i = 0; i < totalRabbits; i++) {
+    rabbits.push(new Rabbit(5,100,100,10,100));
+}
+
+for(let i = 0; i < totalFoxes; i++) {
+    foxes.push(new Fox(5.5,100,100,15,150));
 }
 
 entities = [...carrots,...rabbits,...foxes];
@@ -430,6 +482,10 @@ function loop() {
         e.updateEnergy();
     }
     drawStatusBox();
+
+    if(countSurvivors(rabbits) <= 0 && countSurvivors(foxes) <= 0) {
+        startNewTrial();
+    }
 
     window.requestAnimationFrame(loop);
 }
