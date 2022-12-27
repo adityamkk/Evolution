@@ -371,7 +371,7 @@ class Entity {
 
     // Updates energy and living status
     updateEnergy() {
-        this.setEnergy(this.getEnergy() - 0.5*this.MASS*Math.pow(0*this.getSpeed()+3,2));
+        this.setEnergy(this.getEnergy() - 0.5*this.MASS*Math.pow(this.getSpeed()+3,2));
         if(this.getSpeed() <= 1) { this.setEnergy(this.getEnergy() - Math.pow(this.getMASS(),2)*9.8)}
         this.setLivingTime(this.getLivingTime() + 1);
         if(this.getEnergy() < 0 && this.getLiving() > 0 && this.getTIER() > 0) {
