@@ -43,3 +43,7 @@ Entities have 5 different mutable traits: SPEED, BURST TIME, REDUCED SPEED TIME,
 These mutable traits are the crux of this project, as they demonstrate the true essence of natural selection. All traits are not necessarily beneficial, even though they may seem that way. For example, having a very high speed helps an entity to escape from a predator, but will drain its energy very quickly. Longer bursts can help with catching prey, but can drain all of an entity's energy if used for too long. Higher mass means having more energy to start with, but also increases the rate of energy loss. 
 
 Vision also has a surprising drawback: information overload. When a rabbit, for instance, has too large a vision radius, it will prioritize running from the predators it sees rather than finding food, which leads to it almost never having time to find food.
+
+## Installation
+
+Find the green button labelled "<Code>" and download the zip from there. Then, simply unzip the folder and run the index.html file on the browser.
