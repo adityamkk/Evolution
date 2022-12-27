@@ -396,10 +396,10 @@ class Entity {
     // Mutates all genes by a random amount
     mutateGenes() {
         this.setSPEED(this.getSPEED() + getRandomRange(5));
-        //this.setBURST(this.getBURST() + getRandomRange(10));
-        //this.setRSPEED(this.getRSPEED() + getRandomRange(10));
-        //this.setMASS(this.getMASS() + getRandomRange(1));
-        //this.setVISION(this.getVISION() + getRandomRange(20));
+        this.setBURST(this.getBURST() + getRandomRange(10));
+        this.setRSPEED(this.getRSPEED() + getRandomRange(10));
+        this.setMASS(this.getMASS() + getRandomRange(1));
+        this.setVISION(this.getVISION() + getRandomRange(20));
         return this;
     }
 }
