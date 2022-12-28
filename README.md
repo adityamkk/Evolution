@@ -47,3 +47,7 @@ Vision also has a surprising drawback: information overload. When a rabbit, for 
 ## Installation
 
 Find the green button labelled ```Code``` and download the zip from there. Then, simply unzip the folder and run the index.html file on the browser.
+
+## License
+
+MIT
