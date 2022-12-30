@@ -1,4 +1,36 @@
 body {
+    background-color:black;
     margin : 0;
     overflow : hidden;
+    font:200;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+#panel {
+    color : black;
+    background-color: black;
+    padding: 5px;
+}
+
+.btn {
+    background-color: lightblue;
+    color: black;
+    outline-color: lightblue;
+    outline-style: outset;
+    transition: 0.5s;
+}
+
+.btn:hover {
+    background-color: blue;
+    outline-color:blue;
+    color: white;
+    transition: 0.5s;
+}
+
+.btn:active {
+    background-color: darkblue;
+    outline-color: darkblue;
+    color: white;
+    outline-style: inset;
+    transition: 0.5s;
 }

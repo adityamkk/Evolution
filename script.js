@@ -25,6 +25,8 @@ const textWidth = 200;      // Default text width
 const fontSize = 24;        // Default font size
 const vertPadding = 2;      // Defualt vertical padding
 
+let geneToggles = [true, true, true, true, true];   // Determines which genes will mutate, based on button event listeners
+
 /*
   HELPER FUNCTIONS
 */
@@ -393,13 +395,13 @@ class Entity {
         }
     }
 
-    // Mutates all genes by a random amount
+    // Mutates all genes by a random amount - THIS IS WHERE GENE TOGGLING OCCURS
     mutateGenes() {
-        this.setSPEED(this.getSPEED() + getRandomRange(5));
-        this.setBURST(this.getBURST() + getRandomRange(10));
-        this.setRSPEED(this.getRSPEED() + getRandomRange(10));
-        this.setMASS(this.getMASS() + getRandomRange(1));
-        this.setVISION(this.getVISION() + getRandomRange(20));
+        this.setSPEED(this.getSPEED() + (geneToggles[0]?getRandomRange(5):0));
+        this.setBURST(this.getBURST() + (geneToggles[1]?getRandomRange(10):0));
+        this.setRSPEED(this.getRSPEED() + (geneToggles[2]?getRandomRange(10):0));
+        this.setMASS(this.getMASS() + (geneToggles[3]?getRandomRange(1):0));
+        this.setVISION(this.getVISION() + (geneToggles[4]?getRandomRange(20):0));
         return this;
     }
 }
@@ -494,4 +496,13 @@ function loop() {
   EVENT LISTENERS
 */
 
-loop();
+document.getElementById("SPEED").addEventListener("click", function() {geneToggles[0] = !geneToggles[0]; alert(`SPEED mutations are set to ${geneToggles[0]} `);});
+document.getElementById("BURST").addEventListener("click", function() {geneToggles[1] = !geneToggles[1]; alert(`SPEED mutations are set to ${geneToggles[1]} `);});
+document.getElementById("RSPEED").addEventListener("click", function() {geneToggles[2] = !geneToggles[2]; alert(`SPEED mutations are set to ${geneToggles[2]} `);});
+document.getElementById("MASS").addEventListener("click", function() {geneToggles[3] = !geneToggles[3]; alert(`SPEED mutations are set to ${geneToggles[3]} `);});
+document.getElementById("VISION").addEventListener("click", function() {geneToggles[4] = !geneToggles[4]; alert(`SPEED mutations are set to ${geneToggles[4]} `);});
+
+document.getElementById("START").addEventListener("click", function() {
+    document.getElementById("panel").style.visibility = "hidden";
+    loop();
+});
