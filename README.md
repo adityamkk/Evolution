@@ -10,7 +10,7 @@ Each entity is represented on the screen by a particular dot, with its color rep
 ### Basic Features
 Entities move around via random adjustment. All entities have an initial random direction set, but every few frames that direction changes slightly by a random amount.
 
-Entities have a certain amount of energy, in joules given to them, which depends on its MASS attribute. Every loop, that energy decreases by a certain amount (specified in the "Traits" section). If an entity's energy reaches 0, the entity dies and turns red.
+Entities have a certain amount of energy, in joules given to them, which depends on its ```MASS``` attribute. Every loop, that energy decreases by a certain amount (specified in the "Traits" section). If an entity's energy reaches 0, the entity dies and turns red.
 
 If an entity is eaten, regardless of whether it was alive or had died, it will turn gray. Once all moving entities are gray, a new cycle will begin.
 
@@ -22,18 +22,18 @@ The statistics in the top right corner of the screen show the number of entities
 
 ### Traits
 
-Entities have 5 different mutable traits: SPEED, BURST TIME, REDUCED SPEED TIME, MASS, and VISION.
-- SPEED is the magnitude of an entity's velocity vector; in other words, the distance traversed per animation frame.
-- BURST TIME is the amount of time, in animation frames, an entity can maintain a "burst" speed, where the speed increases by 50%.
+Entities have 5 different mutable traits: ```SPEED```, ```BURST TIME```, ```REDUCED SPEED TIME```, ```MASS```, and ```VISION```.
+- ```SPEED``` is the magnitude of an entity's velocity vector; in other words, the distance traversed per animation frame.
+- ```BURST TIME``` is the amount of time, in animation frames, an entity can maintain a "burst" speed, where the speed increases by 50%.
   - Burst is activated when either an entity senses moving prey, or an entity senses a predator.
   - Once the burst time limit expires, an entity cannot activate it again until the time limit for reduced speed cools.
-- REDUCED SPEED TIME is the amount of time, in animation frames, an entity must maintain a "reduced" speed, where the speed decreases by 40%.
+- ```REDUCED SPEED TIME``` is the amount of time, in animation frames, an entity must maintain a "reduced" speed, where the speed decreases by 40%.
   - Reduced speed is only activated upon the end of a burst.
-- MASS is the weight, in kilograms, of an entity. It determines both the initial amount of energy of an entity and the rate at which energy reduces.
-  - The total energy of an entity, in joules, is its MASS times a base energy amount for all entities. 
+- ```MASS``` is the weight, in kilograms, of an entity. It determines both the initial amount of energy of an entity and the rate at which energy reduces.
+  - The total energy of an entity, in joules, is its ```MASS``` times a base energy amount for all entities. 
   - The rate at which energy reduces per animation frame is half of the mass times the quantity (v+3) squared, where v is the current speed.
   - Mass is visually shown as the size of the entity on the screen.
-- VISION is the distance for which an entity can see its surroundings. It will act depending on what is within its vision radius
+- ```VISION``` is the distance for which an entity can see its surroundings. It will act depending on what is within its vision radius
   - If there is prey within its radius, the entity will move towards it. It will also burst if the prey is moving
   - If there is a predator within its radius, the entity will move away from the predator
     - The entity will burst away from the predator
@@ -46,4 +46,8 @@ Vision also has a surprising drawback: information overload. When a rabbit, for 
 
 ## Installation
 
-Find the green button labelled "<Code>" and download the zip from there. Then, simply unzip the folder and run the index.html file on the browser.
+Find the green button labelled ```Code``` and download the zip from there. Then, simply unzip the folder and run the index.html file on the browser.
+
+## License
+
+MIT
