@@ -13,7 +13,7 @@ let carrots = [];
 let rabbits = [];
 let foxes = [];
 
-const normEnergy = 2500;   // Default amount of energy, in Joules
+const normEnergy = 10000;   // Default amount of energy, in Joules
 const eatRadius = 10;            // Default eating radius, in meters
 const hungerThreshold = 0.5;    // Default hunger threshold, as a percent of total energy;
 
