@@ -503,5 +503,27 @@ document.getElementById("VISION").addEventListener("click", function() {geneTogg
 
 document.getElementById("START").addEventListener("click", function() {
     document.getElementById("panel").style.visibility = "hidden";
+
+    document.getElementById("panel").style.padding = 0;
+    document.getElementById("panel").style.margin = 0;
+
+    document.getElementById("SPEED").style.padding = 0;
+    document.getElementById("SPEED").style.margin = 0;
+
+    document.getElementById("BURST").style.padding = 0;
+    document.getElementById("BURST").style.margin = 0;
+    
+    document.getElementById("RSPEED").style.padding = 0;
+    document.getElementById("RSPEED").style.margin = 0;
+
+    document.getElementById("MASS").style.padding = 0;
+    document.getElementById("MASS").style.margin = 0;
+
+    document.getElementById("VISION").style.padding = 0;
+    document.getElementById("VISION").style.margin = 0;
+
+    document.getElementById("START").style.padding = 0;
+    document.getElementById("START").style.margin = 0;
+
     loop();
 });
