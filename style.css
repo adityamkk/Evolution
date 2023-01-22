@@ -2,34 +2,64 @@ body {
     background-color:black;
     margin : 0;
     overflow : hidden;
-    font:200;
-    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-family: 'Montserrat', sans-serif;
+    font-family: 'Stint Ultra Condensed', cursive;
+    font-family: 'Stint Ultra Expanded', cursive;
+    font-family: 'Ultra', serif;
 }
 
 #panel {
     color : black;
     background-color: black;
     padding: 5px;
+    padding-top:48vh;
+    text-align:center;
 }
 
 .btn {
-    background-color: lightblue;
+    background-color: #1abc9c;
     color: black;
-    outline-color: lightblue;
+    outline-color: #1abc9c;
     outline-style: outset;
+    border-radius: 25%;
     transition: 0.5s;
+    padding: 15px;
+    font-size: 20px;
+    margin: 1px;
 }
 
 .btn:hover {
-    background-color: blue;
-    outline-color:blue;
+    background-color: #16a085;
+    outline-color:#16a085;
     color: white;
     transition: 0.5s;
 }
 
 .btn:active {
-    background-color: darkblue;
-    outline-color: darkblue;
+    background-color: #16a085;
+    outline-color: #16a085;
+    color: white;
+    outline-style: inset;
+    transition: 0.5s;
+}
+
+#START {
+    padding: 15px;
+    font-size: 20px;
+    background-color:#e74c3c;
+    outline-color: #e74c3c;
+}
+
+#START:hover {
+    background-color: #c0392b;
+    outline-color:#c0392b;
+    color: white;
+    transition: 0.5s;
+}
+
+#START:active {
+    background-color: #990000;
+    outline-color: #990000;
     color: white;
     outline-style: inset;
     transition: 0.5s;

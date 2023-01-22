@@ -495,7 +495,6 @@ function loop() {
 /*
   EVENT LISTENERS
 */
-
 document.getElementById("SPEED").addEventListener("click", function() {geneToggles[0] = !geneToggles[0]; alert(`SPEED mutations are set to ${geneToggles[0]} `);});
 document.getElementById("BURST").addEventListener("click", function() {geneToggles[1] = !geneToggles[1]; alert(`SPEED mutations are set to ${geneToggles[1]} `);});
 document.getElementById("RSPEED").addEventListener("click", function() {geneToggles[2] = !geneToggles[2]; alert(`SPEED mutations are set to ${geneToggles[2]} `);});
