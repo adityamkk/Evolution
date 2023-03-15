@@ -19,7 +19,7 @@ const hungerThreshold = 0.5;    // Default hunger threshold, as a percent of tot
 
 const totalCarrots = 50;
 const totalRabbits = 15;
-const totalFoxes = 5;
+const totalFoxes = 17;
 
 const textWidth = 200;      // Default text width
 const fontSize = 24;        // Default font size
@@ -150,20 +150,15 @@ function drawStatusBox() {
 
 // LOOP REINITIALIZER : IMPORTANT!!!
 function startNewTrial() {
-    console.log(`Carrots: ${findMaxLivingTime(carrots)}`);
-    console.log(`Rabbits: ${findMaxLivingTime(rabbits)}`);
-    console.log(`Foxes: ${findMaxLivingTime(foxes)}`);
-
     carrots = [];
     const bestRabbit = findBestSurvivor(rabbits);
-    console.log('Best Rabbit:');
-    console.log(bestRabbit);
     let eRabbit = {};
-    rabbits = [];
     const bestFox = findBestSurvivor(foxes);
-    console.log('Best Fox:');
-    console.log(bestFox);
     let eFox = {};
+
+    console.log(`${bestRabbit.getSPEED()}, ${bestRabbit.getVISION()}, ${findMaxLivingTime(rabbits)}`);
+
+    rabbits = [];
     foxes = [];
 
     for(let i = 0; i < totalCarrots; i++) {
@@ -177,7 +172,8 @@ function startNewTrial() {
 
     for(let i = 0; i < totalFoxes; i++) {
         eFox = new Fox(bestFox.getSPEED(),bestFox.getBURST(),bestFox.getRSPEED(),bestFox.getMASS(),bestFox.getVISION());
-        foxes.push(eFox.mutateGenes());
+        //foxes.push(eFox.mutateGenes());
+        foxes.push(eFox);
     }
 
     entities = [...carrots,...rabbits,...foxes];
@@ -397,7 +393,7 @@ class Entity {
 
     // Mutates all genes by a random amount - THIS IS WHERE GENE TOGGLING OCCURS
     mutateGenes() {
-        this.setSPEED(this.getSPEED() + (geneToggles[0]?getRandomRange(5):0));
+        this.setSPEED(this.getSPEED() + (geneToggles[0]?getRandomRange(1):0));
         this.setBURST(this.getBURST() + (geneToggles[1]?getRandomRange(10):0));
         this.setRSPEED(this.getRSPEED() + (geneToggles[2]?getRandomRange(10):0));
         this.setMASS(this.getMASS() + (geneToggles[3]?getRandomRange(1):0));
@@ -496,10 +492,10 @@ function loop() {
   EVENT LISTENERS
 */
 document.getElementById("SPEED").addEventListener("click", function() {geneToggles[0] = !geneToggles[0]; alert(`SPEED mutations are set to ${geneToggles[0]} `);});
-document.getElementById("BURST").addEventListener("click", function() {geneToggles[1] = !geneToggles[1]; alert(`SPEED mutations are set to ${geneToggles[1]} `);});
-document.getElementById("RSPEED").addEventListener("click", function() {geneToggles[2] = !geneToggles[2]; alert(`SPEED mutations are set to ${geneToggles[2]} `);});
-document.getElementById("MASS").addEventListener("click", function() {geneToggles[3] = !geneToggles[3]; alert(`SPEED mutations are set to ${geneToggles[3]} `);});
-document.getElementById("VISION").addEventListener("click", function() {geneToggles[4] = !geneToggles[4]; alert(`SPEED mutations are set to ${geneToggles[4]} `);});
+document.getElementById("BURST").addEventListener("click", function() {geneToggles[1] = !geneToggles[1]; alert(`BURST mutations are set to ${geneToggles[1]} `);});
+document.getElementById("RSPEED").addEventListener("click", function() {geneToggles[2] = !geneToggles[2]; alert(`RSPEED mutations are set to ${geneToggles[2]} `);});
+document.getElementById("MASS").addEventListener("click", function() {geneToggles[3] = !geneToggles[3]; alert(`MASS mutations are set to ${geneToggles[3]} `);});
+document.getElementById("VISION").addEventListener("click", function() {geneToggles[4] = !geneToggles[4]; alert(`VISION mutations are set to ${geneToggles[4]} `);});
 
 document.getElementById("START").addEventListener("click", function() {
     document.getElementById("panel").style.visibility = "hidden";
